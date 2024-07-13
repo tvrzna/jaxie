@@ -287,7 +287,11 @@ public class XmlElement
 	 */
 	public String getTextContent()
 	{
-		// TODO: prevent returning of CDATA annotation
+		if (value != null && value.startsWith("<![CDATA[") && value.endsWith("]]>"))
+		{
+			return value.substring("<![CDATA[".length(), value.lastIndexOf("]]>"));
+		}
+
 		return value;
 	}
 

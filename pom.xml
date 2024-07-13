@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cz.tvrzna</groupId>
 	<artifactId>jaxie</artifactId>
-	<version>0.0.0-20240712-SNAPSHOT</version>
+	<version>0.0.1</version>
 
 	<name>Jackie</name>
 	<description>Simple XML serialization and deserialization from/to object.</description>

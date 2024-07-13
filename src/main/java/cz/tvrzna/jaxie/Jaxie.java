@@ -2,6 +2,7 @@ package cz.tvrzna.jaxie;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,18 @@ public class Jaxie
 
 	private Jaxie()
 	{
+	}
+
+	public static XmlElement parse(String content)
+	{
+		try
+		{
+			return parse(new StringReader(content));
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 
 	public static XmlElement parse(Reader reader) throws IOException
