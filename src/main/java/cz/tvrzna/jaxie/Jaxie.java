@@ -1,6 +1,7 @@
 package cz.tvrzna.jaxie;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -25,10 +26,89 @@ public class Jaxie
 		MAP_XML_ESCAPE.put("\"", "&quot;");
 	}
 
+	/**
+	 * Instantiates a new jaxie.
+	 */
 	private Jaxie()
 	{
 	}
 
+	/**
+	 * To xml.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param object
+	 *          the object
+	 * @return the string
+	 */
+	public static <T> String toXml(T object)
+	{
+		try
+		{
+			XmlElement el = SerializationMapper.serialize(object);
+			return el.toString();
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * To xml.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param object
+	 *          the object
+	 * @param os
+	 *          the os
+	 */
+	public static <T> void toXml(T object, OutputStream os)
+	{
+		try
+		{
+			XmlElement el = SerializationMapper.serialize(object);
+			os.write(el.toString().getBytes());
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * From xml.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param xml
+	 *          the xml
+	 * @param clazz
+	 *          the clazz
+	 * @return the t
+	 */
+	public static <T> T fromXml(String xml, Class<T> clazz)
+	{
+		try
+		{
+			XmlElement el = parse(xml);
+			return DeserializationMapper.deserialize(el, clazz);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Parses the.
+	 *
+	 * @param content
+	 *          the content
+	 * @return the xml element
+	 */
 	public static XmlElement parse(String content)
 	{
 		try
@@ -41,11 +121,31 @@ public class Jaxie
 		}
 	}
 
+	/**
+	 * Parses the.
+	 *
+	 * @param reader
+	 *          the reader
+	 * @return the xml element
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public static XmlElement parse(Reader reader) throws IOException
 	{
 		return parse(reader, null);
 	}
 
+	/**
+	 * Parses the.
+	 *
+	 * @param reader
+	 *          the reader
+	 * @param parent
+	 *          the parent
+	 * @return the xml element
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	private static XmlElement parse(Reader reader, XmlElement parent) throws IOException
 	{
 		if (parent == null)
@@ -131,6 +231,16 @@ public class Jaxie
 		return result;
 	}
 
+	/**
+	 * Parses the attribute.
+	 *
+	 * @param reader
+	 *          the reader
+	 * @param element
+	 *          the element
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	private static void parseAttribute(Reader reader, XmlElement element) throws IOException
 	{
 		StringWriter sw = new StringWriter();
@@ -189,6 +299,15 @@ public class Jaxie
 		}
 	}
 
+	/**
+	 * Parses the comment.
+	 *
+	 * @param reader
+	 *          the reader
+	 * @return true, if successful
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	private static boolean parseComment(Reader reader) throws IOException
 	{
 		int c = reader.read();
@@ -234,6 +353,15 @@ public class Jaxie
 		return true;
 	}
 
+	/**
+	 * Parses the header.
+	 *
+	 * @param reader
+	 *          the reader
+	 * @return true, if successful
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	private static boolean parseHeader(Reader reader) throws IOException
 	{
 		StringWriter sw = new StringWriter();

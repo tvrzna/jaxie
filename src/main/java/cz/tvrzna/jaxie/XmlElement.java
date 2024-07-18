@@ -19,7 +19,7 @@ public class XmlElement
 	protected final String name;
 	protected final XmlElement parent;
 	protected final List<XmlElement> lstChildren;
-	private final List<XmlAttribute> lstAttributes;
+	protected final List<XmlAttribute> lstAttributes;
 	protected String value;
 
 	private boolean displayXmlInfo = false;
@@ -165,7 +165,7 @@ public class XmlElement
 
 	/**
 	 * Adds new child element in tags, that matches <code>name</code>lambda
-	 * function, that handles newly created child element
+	 * function, that handles newly created child element.
 	 *
 	 * @param name
 	 *          the name
@@ -205,6 +205,32 @@ public class XmlElement
 		}
 		lstChildren.add(childElement);
 		return this;
+	}
+
+	/**
+	 * Adds the child element, if parent of child is the same as current element..
+	 *
+	 * @param childElement
+	 *          the child element
+	 * @return the xml element
+	 */
+	public XmlElement add(XmlElement childElement)
+	{
+		if (childElement.parent.equals(this))
+		{
+			lstChildren.add(childElement);
+		}
+		return this;
+	}
+
+	/**
+	 * Gets the name.
+	 *
+	 * @return the name
+	 */
+	public String getName()
+	{
+		return name;
 	}
 
 	/**
@@ -363,6 +389,7 @@ public class XmlElement
 	 *
 	 * @param displayXmlInfo
 	 *          the new display xml info
+	 * @return the xml element
 	 */
 	public XmlElement setDisplayXmlInfo(boolean displayXmlInfo)
 	{
