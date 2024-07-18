@@ -9,47 +9,22 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The Class CommonUtils.
+ *
+ * @author michalt
+ */
 public class CommonUtils
 {
 	protected static final String DATE_FORMAT_XML = "yyyy-MM-dd HH:mm:ss";
 	protected static final List<Class<?>> SIMPLE_CLASSES = Arrays.asList(String.class, Boolean.class, Byte.class, Character.class, Short.class, Integer.class, Long.class,
-			Number.class, Float.class, Double.class, Date.class, BigDecimal.class, BigInteger.class, boolean.class, byte.class, char.class, short.class, int.class, long.class, float.class, double.class);
+			Number.class, Float.class, Double.class, Date.class, BigDecimal.class, BigInteger.class, boolean.class, byte.class, char.class, short.class, int.class, long.class,
+			float.class, double.class);
 	protected static final List<Class<?>> PRIMITIVE_CLASSES = Arrays.asList(boolean.class, byte.class, char.class, short.class, int.class, long.class, float.class, double.class);
 
-
 	/**
-	 * The Enum ESCAPE_CHARACTERS.
-	 *
-	 * @author michalt
-	 * @since 0.3.1
+	 * Instantiates a new common utils.
 	 */
-	protected enum ESCAPE_CHARACTERS {
-		TAB("\\t", "\t"),
-		CARRIAGE_RETURN("\\r", "\r"),
-		NEW_LINE("\\n", "\n"),
-		FORM_FEED("\\f", "\f"),
-		BACKSPACE("\\b", "\b");
-
-		private final String value;
-		private final String character;
-
-		private ESCAPE_CHARACTERS(String value, String character)
-		{
-			this.value = value;
-			this.character = character;
-		}
-
-		public String getValue()
-		{
-			return value;
-		}
-
-		public String getCharacter()
-		{
-			return character;
-		}
-	}
-
 	private CommonUtils()
 	{
 	}
@@ -181,6 +156,17 @@ public class CommonUtils
 		throw new Exception("Unkown primitive type.");
 	}
 
+	/**
+	 * Convert primitive array to objects.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param array
+	 *          the array
+	 * @return the object[]
+	 * @throws Exception
+	 *           the exception
+	 */
 	@SuppressWarnings("unchecked")
 	protected static <T> Object[] convertPrimitiveArrayToObjects(T array) throws Exception
 	{
@@ -244,34 +230,6 @@ public class CommonUtils
 			}
 		}
 		return list.toArray();
-	}
-
-	/**
-	 * String Builder replace.
-	 *
-	 * @param sb
-	 *          the sb
-	 * @param target
-	 *          the target
-	 * @param replacement
-	 *          the replacement
-	 */
-	protected static void stringBuilderReplace(StringBuilder sb, String target, String replacement)
-	{
-		for (int i = 0; i < sb.length(); i++)
-		{
-			if (i + 1 >= sb.length())
-			{
-				break;
-			}
-			i = sb.indexOf(target, i);
-			if (i < 0)
-			{
-				break;
-			}
-			sb.replace(i, i + target.length(), replacement);
-			i = i - target.length() + replacement.length();
-		}
 	}
 
 }
