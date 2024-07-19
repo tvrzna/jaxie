@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cz.tvrzna</groupId>
 	<artifactId>jaxie</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 
 	<name>Jackie</name>
 	<description>Simple XML serialization and deserialization from/to object.</description>
@@ -40,7 +40,18 @@
 		<maven.surefire.version>3.3.1</maven.surefire.version>
 		<maven.gpg.version>3.2.4</maven.gpg.version>
 		<java.version>1.8</java.version>
+
+		<junit.version>5.10.3</junit.version>
 	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<profiles>
 		<profile>

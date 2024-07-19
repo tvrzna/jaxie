@@ -12,9 +12,7 @@ import java.util.stream.Collectors;
  */
 public class XmlElement
 {
-	private static final String NEW_LINE = "\r\n";
-	private static final String INDENT_SYMBOL = "\t";
-	private static final String XML_INFO = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+
 
 	protected final String name;
 	protected final XmlElement parent;
@@ -23,6 +21,18 @@ public class XmlElement
 	protected String value;
 
 	private boolean displayXmlInfo = false;
+
+	/**
+	 * Creates new root <code>XmlElement</code>.
+	 *
+	 * @param name
+	 *          the name
+	 * @return newly created root element
+	 */
+	public static XmlElement create(String name)
+	{
+		return new XmlElement(name, null);
+	}
 
 	/**
 	 * Instantiates a new xml element.
@@ -40,99 +50,7 @@ public class XmlElement
 		lstAttributes = new ArrayList<>();
 	}
 
-	/**
-	 * Converts <code>XmlElement</code> into <code>String</code>.
-	 *
-	 * @return current element as String
-	 */
-	@Override
-	public String toString()
-	{
-		return toString(true);
-	}
 
-	/**
-	 * Converts <code>XmlElement</code> into <code>String</code>.
-	 *
-	 * @param pretty
-	 *          the pretty
-	 * @return current element as String
-	 */
-	public String toString(boolean pretty)
-	{
-		return toString(pretty, 0);
-	}
-
-	/**
-	 * Converts <code>XmlElement</code> into <code>String</code>.
-	 *
-	 * @param pretty
-	 *          the pretty
-	 * @param indentCount
-	 *          the indent count
-	 * @return current element as String
-	 */
-	private String toString(boolean pretty, int indentCount)
-	{
-		StringBuilder result = new StringBuilder();
-		String indent = "";
-		String childIndent = "";
-
-		if (displayXmlInfo && parent == null)
-		{
-			result.append(XML_INFO);
-			if (pretty)
-			{
-				result.append(NEW_LINE);
-			}
-		}
-
-		if (pretty)
-		{
-			StringBuilder strIndent = new StringBuilder();
-			if (indentCount > 0)
-			{
-				strIndent.append(NEW_LINE);
-			}
-			for (int i = 0; i < indentCount; i++)
-			{
-				strIndent.append(INDENT_SYMBOL);
-			}
-			indent = strIndent.toString();
-			childIndent = indent.concat(INDENT_SYMBOL);
-		}
-
-		result.append(indent).append("<").append(this.name);
-		lstAttributes.forEach(attr -> result.append(" ").append(attr.getName()).append(attr.getValue() != null ? "=\"" : "")
-				.append(attr.getValue() != null ? Jaxie.normalizeText(attr.getValue()) : "").append(attr.getValue() != null ? "\"" : ""));
-		if (lstChildren.isEmpty() && (value == null || value.trim().isEmpty()))
-		{
-			result.append("/>");
-		}
-		else if (lstChildren.isEmpty() && value != null && !value.trim().isEmpty())
-		{
-			result.append(">").append(value).append("</").append(this.name).append(">");
-		}
-		else
-		{
-			result.append(">");
-			lstChildren.forEach(el -> result.append(el.toString(pretty, indentCount + 1)));
-			if (value != null && !value.trim().isEmpty())
-			{
-				if (pretty && indentCount == 0)
-				{
-					result.append(NEW_LINE);
-				}
-				result.append(childIndent).append(value);
-			}
-			if (pretty && indentCount == 0)
-			{
-				result.append(NEW_LINE);
-			}
-			result.append(indent).append("</").append(this.name).append(">");
-		}
-		return result.toString();
-	}
 
 	/**
 	 * Adds new child element in tags, that matches <code>name</code>.
@@ -364,7 +282,7 @@ public class XmlElement
 			}
 			else
 			{
-				this.value = Jaxie.normalizeText(value);
+				this.value = value;
 			}
 		}
 		else
@@ -373,6 +291,8 @@ public class XmlElement
 		}
 		return this;
 	}
+
+
 
 	/**
 	 * Checks if is display xml info.

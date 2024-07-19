@@ -21,9 +21,29 @@ import cz.tvrzna.jaxie.annotations.JaxieAttribute;
 import cz.tvrzna.jaxie.annotations.JaxieElement;
 import cz.tvrzna.jaxie.annotations.JaxieWrapper;
 
+/**
+ * The Class DeserializationMapper.
+ *
+ * @author michalt
+ */
 public class DeserializationMapper
 {
 
+	/**
+	 * Deserialize.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param lstElements
+	 *          the lst elements
+	 * @param clazz
+	 *          the clazz
+	 * @param field
+	 *          the field
+	 * @return the t
+	 * @throws Exception
+	 *           the exception
+	 */
 	@SuppressWarnings("unchecked")
 	protected static <T> T deserialize(List<XmlElement> lstElements, Class<T> clazz, Field field) throws Exception
 	{
@@ -79,11 +99,37 @@ public class DeserializationMapper
 		return deserializeObject(el, clazz);
 	}
 
+	/**
+	 * Deserialize.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param el
+	 *          the el
+	 * @param clazz
+	 *          the clazz
+	 * @return the t
+	 * @throws Exception
+	 *           the exception
+	 */
 	protected static <T> T deserialize(XmlElement el, Class<T> clazz) throws Exception
 	{
 		return deserialize(Arrays.asList(el), clazz, null);
 	}
 
+	/**
+	 * Deserialize object.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param el
+	 *          the el
+	 * @param clazz
+	 *          the clazz
+	 * @return the t
+	 * @throws Exception
+	 *           the exception
+	 */
 	private static <T> T deserializeObject(XmlElement el, Class<T> clazz) throws Exception
 	{
 		T result = clazz.getDeclaredConstructor().newInstance();
@@ -130,6 +176,15 @@ public class DeserializationMapper
 		return result;
 	}
 
+	/**
+	 * Gets the class from field.
+	 *
+	 * @param field
+	 *          the field
+	 * @param index
+	 *          the index
+	 * @return the class from field
+	 */
 	private static Class<?> getClassFromField(Field field, int index)
 	{
 		Object o = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[index];
@@ -144,6 +199,17 @@ public class DeserializationMapper
 		return null;
 	}
 
+	/**
+	 * Deserialize value.
+	 *
+	 * @param value
+	 *          the value
+	 * @param clazz
+	 *          the clazz
+	 * @return the object
+	 * @throws ParseException
+	 *           the parse exception
+	 */
 	@SuppressWarnings(
 	{ "rawtypes", "unchecked" })
 	private static Object deserializeValue(String value, Class<?> clazz) throws ParseException
@@ -196,6 +262,19 @@ public class DeserializationMapper
 		return value.toString();
 	}
 
+	/**
+	 * Deserialize list.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param lstElements
+	 *          the lst elements
+	 * @param clazz
+	 *          the clazz
+	 * @return the list
+	 * @throws Exception
+	 *           the exception
+	 */
 	private static <T> List<T> deserializeList(List<XmlElement> lstElements, Class<T> clazz) throws Exception
 	{
 		List<T> result = new ArrayList<>();
@@ -206,6 +285,23 @@ public class DeserializationMapper
 		return result;
 	}
 
+	/**
+	 * Deserialize map.
+	 *
+	 * @param <K>
+	 *          the key type
+	 * @param <V>
+	 *          the value type
+	 * @param root
+	 *          the root
+	 * @param keyClazz
+	 *          the key clazz
+	 * @param valueClazz
+	 *          the value clazz
+	 * @return the map
+	 * @throws Exception
+	 *           the exception
+	 */
 	private static <K, V> Map<K, V> deserializeMap(XmlElement root, Class<K> keyClazz, Class<V> valueClazz) throws Exception
 	{
 		Map<K, V> result = new HashMap<>();
@@ -217,6 +313,22 @@ public class DeserializationMapper
 		return result;
 	}
 
+	/**
+	 * Fill field.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param <A>
+	 *          the generic type
+	 * @param result
+	 *          the result
+	 * @param value
+	 *          the value
+	 * @param field
+	 *          the field
+	 * @throws Exception
+	 *           the exception
+	 */
 	private static <T, A> void fillField(T result, Object value, Field field) throws Exception
 	{
 		if (value == null)

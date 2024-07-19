@@ -7,7 +7,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The Class CommonUtils.
@@ -21,6 +23,16 @@ public class CommonUtils
 			Number.class, Float.class, Double.class, Date.class, BigDecimal.class, BigInteger.class, boolean.class, byte.class, char.class, short.class, int.class, long.class,
 			float.class, double.class);
 	protected static final List<Class<?>> PRIMITIVE_CLASSES = Arrays.asList(boolean.class, byte.class, char.class, short.class, int.class, long.class, float.class, double.class);
+
+	private static final Map<String, String> MAP_XML_ESCAPE = new HashMap<>();
+
+	static
+	{
+		MAP_XML_ESCAPE.put("<", "&lt;");
+		MAP_XML_ESCAPE.put(">", "&gt;");
+		MAP_XML_ESCAPE.put("'", "&apos;");
+		MAP_XML_ESCAPE.put("\"", "&quot;");
+	}
 
 	/**
 	 * Instantiates a new common utils.
@@ -232,4 +244,33 @@ public class CommonUtils
 		return list.toArray();
 	}
 
+	/**
+	 * Normalize text.
+	 *
+	 * @param str
+	 *          the str
+	 * @return the string
+	 */
+	public static String normalizeText(String str)
+	{
+		String result = str;
+		result = result.replace("&", "&amp;");
+		for (Map.Entry<String, String> entry : CommonUtils.MAP_XML_ESCAPE.entrySet())
+		{
+			result = result.replace(entry.getKey(), entry.getValue());
+		}
+		return result;
+	}
+
+	/**
+	 * Checks if is cdata.
+	 *
+	 * @param value
+	 *          the value
+	 * @return true, if is cdata
+	 */
+	protected static boolean isCDATA(String value)
+	{
+		return value != null && value.startsWith("<![CDATA[") && value.endsWith("]]>");
+	}
 }

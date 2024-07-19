@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import cz.tvrzna.jaxie.annotations.JaxieAttribute;
 import cz.tvrzna.jaxie.annotations.JaxieElement;
 import cz.tvrzna.jaxie.annotations.JaxieWrapper;
@@ -48,12 +51,13 @@ public class JaxieTest
 		private int[] value;
 	}
 
-	public static void main(String[] args)
+	@Test
+	public void basicTest()
 	{
-		// TODO: convert to JUnit!
+		Jaxie jaxie = new Jaxie();
 
 		final String xml = "<rootElement><id>1</id><date>2024-07-18 13:15:23</date><children><child attr=\"boo\"><id>2</id><counter>22</counter><rating>SECOND</rating></child><child attr=\"boo2\"><id>3</id><counter>33</counter><rating>SECOND</rating></child></children><rating>FIRST</rating><sophisticatedMap><entry><key>2</key><value attr=\"boo\"><id>2</id><counter>22</counter><rating>SECOND</rating></value></entry><entry><key>3</key><value attr=\"boo2\"><id>3</id><counter>33</counter><rating>SECOND</rating></value></entry></sophisticatedMap><values><value>1</value><value>2</value><value>3</value><value>4</value><value>5</value><value>6</value></values></rootElement>";
-		XmlElement el = Jaxie.parse(xml);
+		XmlElement el = Deserializator.parse(xml);
 
 		TestClass c = new TestClass();
 		c.id = 1l;
@@ -82,14 +86,14 @@ public class JaxieTest
 
 		try
 		{
-			String result = Jaxie.toXml(c);
+			String result = jaxie.toXml(c);
 
 			TestClass dc = DeserializationMapper.deserialize(el, TestClass.class);
 			System.out.print(result);
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			Assertions.fail(e);
 		}
 	}
 }
