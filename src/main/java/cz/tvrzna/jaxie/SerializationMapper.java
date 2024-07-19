@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
+import cz.tvrzna.jaxie.annotations.JaxieAdapter;
 import cz.tvrzna.jaxie.annotations.JaxieAttribute;
 import cz.tvrzna.jaxie.annotations.JaxieElement;
 import cz.tvrzna.jaxie.annotations.JaxieWrapper;
@@ -123,43 +124,57 @@ public class SerializationMapper
 
 		for (Field f : CommonUtils.getFields(o.getClass()))
 		{
-			f.setAccessible(true);
-			Object value = f.get(o);
-			if (value == null)
-			{
-				continue;
-			}
-
-			JaxieAttribute fAttr = f.getAnnotation(JaxieAttribute.class);
-			if (fAttr != null)
-			{
-				root.addAttribute(fAttr.value().isEmpty() ? f.getName() : fAttr.value(), value != null ? serializeValue(value, config) : null);
-				continue;
-			}
-
-			XmlElement wrapper = null;
-			JaxieWrapper fWrapper = f.getAnnotation(JaxieWrapper.class);
-			if (fWrapper != null)
-			{
-				wrapper = new XmlElement(fWrapper.value(), root);
-				root.add(wrapper);
-			}
-
-			String fName = f.getName();
-			JaxieElement fEl = f.getAnnotation(JaxieElement.class);
-			if (fEl != null && !fEl.value().isEmpty())
-			{
-				fName = fEl.value();
-			}
-
-			XmlElement child = toXmlElement(value, fName, (wrapper != null ? wrapper : root), config);
-			if (child != null)
-			{
-				(wrapper != null ? wrapper : root).add(child);
-			}
+			processField(o, root, f, config);
 		}
 
 		return root;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T, A> void processField(T o, XmlElement root, Field f, Config config) throws Exception
+	{
+		f.setAccessible(true);
+		Object value = f.get(o);
+		if (value == null)
+		{
+			return;
+		}
+
+		JaxieAdapter adapter = f.getAnnotation(JaxieAdapter.class);
+		Adapter<A> adapterHandler = null;
+		if (adapter != null)
+		{
+			adapterHandler = (Adapter<A>) adapter.value().getDeclaredConstructor().newInstance();
+		}
+
+		JaxieAttribute fAttr = f.getAnnotation(JaxieAttribute.class);
+		if (fAttr != null)
+		{
+			root.addAttribute(fAttr.value().isEmpty() ? f.getName() : fAttr.value(),
+					value != null ? (adapterHandler != null ? adapterHandler.serialize((A) value) : serializeValue(value, config)) : null);
+			return;
+		}
+
+		XmlElement wrapper = null;
+		JaxieWrapper fWrapper = f.getAnnotation(JaxieWrapper.class);
+		if (fWrapper != null)
+		{
+			wrapper = new XmlElement(fWrapper.value(), root);
+			root.add(wrapper);
+		}
+
+		String fName = f.getName();
+		JaxieElement fEl = f.getAnnotation(JaxieElement.class);
+		if (fEl != null && !fEl.value().isEmpty())
+		{
+			fName = fEl.value();
+		}
+
+		XmlElement child = toXmlElement(adapterHandler != null ? adapterHandler.serialize((A) value) : value, fName, (wrapper != null ? wrapper : root), config);
+		if (child != null)
+		{
+			(wrapper != null ? wrapper : root).add(child);
+		}
 	}
 
 	/**

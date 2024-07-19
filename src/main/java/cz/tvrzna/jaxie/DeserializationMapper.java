@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import cz.tvrzna.jaxie.annotations.JaxieAdapter;
 import cz.tvrzna.jaxie.annotations.JaxieAttribute;
 import cz.tvrzna.jaxie.annotations.JaxieElement;
 import cz.tvrzna.jaxie.annotations.JaxieWrapper;
@@ -55,6 +56,16 @@ public class DeserializationMapper
 			return null;
 		}
 		XmlElement el = lstElements.get(lstElements.size() - 1);
+
+		if (field != null)
+		{
+			JaxieAdapter adapter = field.getAnnotation(JaxieAdapter.class);
+			if (adapter != null)
+			{
+				Adapter<T> adapterHandler = (Adapter<T>) adapter.value().getDeclaredConstructor().newInstance();
+				return adapterHandler.deserialize(el.getTextContent());
+			}
+		}
 
 		if ((CommonUtils.SIMPLE_CLASSES.contains(clazz) || Enum.class.isAssignableFrom(clazz)) && !clazz.isArray())
 		{
@@ -151,7 +162,7 @@ public class DeserializationMapper
 				List<XmlAttribute> lstAttributes = el.getAttributes(name);
 				if (!lstAttributes.isEmpty())
 				{
-					fillField(result, lstAttributes.get(lstAttributes.size() - 1).getValue(), field);
+					fillField(result, deserializeValue(lstAttributes.get(lstAttributes.size() - 1).getValue(), field.getType(), config), field);
 				}
 				continue;
 			}
