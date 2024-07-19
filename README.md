@@ -9,6 +9,6 @@ Yet another XML object serializer/deserializer, that is small and relatively fas
 <dependency>
     <groupId>cz.tvrzna</groupId>
     <artifactId>jaxie</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.3</version>
 </dependency>
 ```

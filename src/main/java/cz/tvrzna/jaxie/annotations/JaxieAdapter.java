@@ -23,7 +23,7 @@ public @interface JaxieAdapter
 	/**
 	 * Value.
 	 *
-	 * @return the class<? extends adapter<?>>
+	 * @return the class&lt;? extends adapter&lt;?&gt;&gt;
 	 */
 	Class<? extends Adapter<?>> value();
 }
