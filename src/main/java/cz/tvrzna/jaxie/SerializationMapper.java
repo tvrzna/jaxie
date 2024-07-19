@@ -6,14 +6,34 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 import cz.tvrzna.jaxie.annotations.JaxieAttribute;
 import cz.tvrzna.jaxie.annotations.JaxieElement;
 import cz.tvrzna.jaxie.annotations.JaxieWrapper;
 
+/**
+ * The Class SerializationMapper.
+ *
+ * @author michalt
+ */
 public class SerializationMapper
 {
-	protected static <T> XmlElement serialize(T o) throws Exception
+
+	/**
+	 * Serialize.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param o
+	 *          the o
+	 * @param config
+	 *          the config
+	 * @return the xml element
+	 * @throws Exception
+	 *           the exception
+	 */
+	protected static <T> XmlElement serialize(T o, Config config) throws Exception
 	{
 		if (o == null)
 		{
@@ -26,10 +46,27 @@ public class SerializationMapper
 		{
 			name = j.value();
 		}
-		return processObject(o, name, null);
+		return processObject(o, name, null, config);
 	}
 
-	private static <T> XmlElement toXmlElement(T o, String name, XmlElement parent) throws Exception
+	/**
+	 * To xml element.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param o
+	 *          the o
+	 * @param name
+	 *          the name
+	 * @param parent
+	 *          the parent
+	 * @param config
+	 *          the config
+	 * @return the xml element
+	 * @throws Exception
+	 *           the exception
+	 */
+	private static <T> XmlElement toXmlElement(T o, String name, XmlElement parent, Config config) throws Exception
 	{
 		if (o == null)
 		{
@@ -38,32 +75,49 @@ public class SerializationMapper
 		else if ((CommonUtils.SIMPLE_CLASSES.contains(o.getClass()) || Enum.class.isAssignableFrom(o.getClass())) && !o.getClass().isArray())
 		{
 			XmlElement el = new XmlElement(name, parent);
-			el.setTextContent(serializeValue(o));
+			el.setTextContent(serializeValue(o, config));
 			return el;
 		}
 		else if (Map.class.isAssignableFrom(o.getClass()))
 		{
-			return processMap(o, name, parent);
+			return processMap(o, name, parent, config);
 		}
 		else if (Collection.class.isAssignableFrom(o.getClass()))
 		{
-			processArray(((Collection<?>) o).toArray(), name, parent);
+			processArray(((Collection<?>) o).toArray(), name, parent, config);
 			return null;
 		}
 		else if (o.getClass().isArray())
 		{
 			if (CommonUtils.PRIMITIVE_CLASSES.contains(o.getClass().getComponentType()))
 			{
-				processArray(CommonUtils.convertPrimitiveArrayToObjects(o), name, parent);
+				processArray(CommonUtils.convertPrimitiveArrayToObjects(o), name, parent, config);
 				return null;
 			}
-			processArray((Object[]) o, name, parent);
+			processArray((Object[]) o, name, parent, config);
 			return null;
 		}
-		return processObject(o, name, parent);
+		return processObject(o, name, parent, config);
 	}
 
-	private static <T> XmlElement processObject(T o, String name, XmlElement parent) throws Exception
+	/**
+	 * Process object.
+	 *
+	 * @param <T>
+	 *          the generic type
+	 * @param o
+	 *          the o
+	 * @param name
+	 *          the name
+	 * @param parent
+	 *          the parent
+	 * @param config
+	 *          the config
+	 * @return the xml element
+	 * @throws Exception
+	 *           the exception
+	 */
+	private static <T> XmlElement processObject(T o, String name, XmlElement parent, Config config) throws Exception
 	{
 		XmlElement root = new XmlElement(name, parent);
 
@@ -79,7 +133,7 @@ public class SerializationMapper
 			JaxieAttribute fAttr = f.getAnnotation(JaxieAttribute.class);
 			if (fAttr != null)
 			{
-				root.addAttribute(fAttr.value().isEmpty() ? f.getName() : fAttr.value(), value != null ? serializeValue(value) : null);
+				root.addAttribute(fAttr.value().isEmpty() ? f.getName() : fAttr.value(), value != null ? serializeValue(value, config) : null);
 				continue;
 			}
 
@@ -98,7 +152,7 @@ public class SerializationMapper
 				fName = fEl.value();
 			}
 
-			XmlElement child = toXmlElement(value, fName, (wrapper != null ? wrapper : root));
+			XmlElement child = toXmlElement(value, fName, (wrapper != null ? wrapper : root), config);
 			if (child != null)
 			{
 				(wrapper != null ? wrapper : root).add(child);
@@ -108,17 +162,32 @@ public class SerializationMapper
 		return root;
 	}
 
-	private static XmlElement processMap(Object map, String name, XmlElement parent) throws Exception
+	/**
+	 * Process map.
+	 *
+	 * @param map
+	 *          the map
+	 * @param name
+	 *          the name
+	 * @param parent
+	 *          the parent
+	 * @param config
+	 *          the config
+	 * @return the xml element
+	 * @throws Exception
+	 *           the exception
+	 */
+	private static XmlElement processMap(Object map, String name, XmlElement parent, Config config) throws Exception
 	{
 		XmlElement root = new XmlElement(name, parent);
 		for (final Map.Entry<?, ?> entry : ((Map<?, ?>) map).entrySet())
 		{
 			XmlElement el = new XmlElement("entry", root);
 
-			XmlElement key = toXmlElement(entry.getKey(), "key", el);
+			XmlElement key = toXmlElement(entry.getKey(), "key", el, config);
 			el.add(key);
 
-			XmlElement value = toXmlElement(entry.getValue(), "value", el);
+			XmlElement value = toXmlElement(entry.getValue(), "value", el, config);
 			el.add(value);
 
 			root.add(el);
@@ -126,11 +195,25 @@ public class SerializationMapper
 		return root;
 	}
 
-	private static void processArray(Object[] array, String name, XmlElement parent) throws Exception
+	/**
+	 * Process array.
+	 *
+	 * @param array
+	 *          the array
+	 * @param name
+	 *          the name
+	 * @param parent
+	 *          the parent
+	 * @param config
+	 *          the config
+	 * @throws Exception
+	 *           the exception
+	 */
+	private static void processArray(Object[] array, String name, XmlElement parent, Config config) throws Exception
 	{
 		for (Object obj : array)
 		{
-			XmlElement el = toXmlElement(obj, name, parent);
+			XmlElement el = toXmlElement(obj, name, parent, config);
 			if (el != null)
 			{
 				parent.add(el);
@@ -138,7 +221,18 @@ public class SerializationMapper
 		}
 	}
 
-	private static String serializeValue(Object value) throws Exception
+	/**
+	 * Serialize value.
+	 *
+	 * @param value
+	 *          the value
+	 * @param config
+	 *          the config
+	 * @return the string
+	 * @throws Exception
+	 *           the exception
+	 */
+	private static String serializeValue(Object value, Config config) throws Exception
 	{
 		if (value == null)
 		{
@@ -150,7 +244,7 @@ public class SerializationMapper
 		}
 		else if (value instanceof Date)
 		{
-			DateFormat df = new SimpleDateFormat(CommonUtils.DATE_FORMAT_XML);
+			DateFormat df = Optional.ofNullable(config.getDateFormat()).orElse(new SimpleDateFormat(CommonUtils.DATE_FORMAT_XML));
 			return df.format(value);
 		}
 		return value.toString();

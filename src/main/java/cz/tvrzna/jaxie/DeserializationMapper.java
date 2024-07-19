@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import cz.tvrzna.jaxie.annotations.JaxieAttribute;
 import cz.tvrzna.jaxie.annotations.JaxieElement;
@@ -40,12 +41,14 @@ public class DeserializationMapper
 	 *          the clazz
 	 * @param field
 	 *          the field
+	 * @param config
+	 *          the config
 	 * @return the t
 	 * @throws Exception
 	 *           the exception
 	 */
 	@SuppressWarnings("unchecked")
-	protected static <T> T deserialize(List<XmlElement> lstElements, Class<T> clazz, Field field) throws Exception
+	protected static <T> T deserialize(List<XmlElement> lstElements, Class<T> clazz, Field field, Config config) throws Exception
 	{
 		if (lstElements == null || lstElements.isEmpty())
 		{
@@ -55,7 +58,7 @@ public class DeserializationMapper
 
 		if ((CommonUtils.SIMPLE_CLASSES.contains(clazz) || Enum.class.isAssignableFrom(clazz)) && !clazz.isArray())
 		{
-			return (T) deserializeValue(el.getTextContent(), clazz);
+			return (T) deserializeValue(el.getTextContent(), clazz, config);
 		}
 		else if (Collection.class.isAssignableFrom(clazz))
 		{
@@ -68,12 +71,12 @@ public class DeserializationMapper
 			{
 				lstSubClazz = Object.class;
 			}
-			return (T) deserializeList(lstElements, lstSubClazz);
+			return (T) deserializeList(lstElements, lstSubClazz, config);
 		}
 		else if (clazz.isArray())
 		{
 			Class<?> arrSubClazz = clazz.getComponentType();
-			List<?> list = deserializeList(lstElements, arrSubClazz);
+			List<?> list = deserializeList(lstElements, arrSubClazz, config);
 			if (CommonUtils.PRIMITIVE_CLASSES.contains(arrSubClazz))
 			{
 				return CommonUtils.convertArrayToPrimitive(list, arrSubClazz);
@@ -94,9 +97,9 @@ public class DeserializationMapper
 				keyClazz = Object.class;
 				valueClazz = Object.class;
 			}
-			return (T) deserializeMap(lstElements.get(lstElements.size() - 1), keyClazz, valueClazz);
+			return (T) deserializeMap(lstElements.get(lstElements.size() - 1), keyClazz, valueClazz, config);
 		}
-		return deserializeObject(el, clazz);
+		return deserializeObject(el, clazz, config);
 	}
 
 	/**
@@ -108,13 +111,15 @@ public class DeserializationMapper
 	 *          the el
 	 * @param clazz
 	 *          the clazz
+	 * @param config
+	 *          the config
 	 * @return the t
 	 * @throws Exception
 	 *           the exception
 	 */
-	protected static <T> T deserialize(XmlElement el, Class<T> clazz) throws Exception
+	protected static <T> T deserialize(XmlElement el, Class<T> clazz, Config config) throws Exception
 	{
-		return deserialize(Arrays.asList(el), clazz, null);
+		return deserialize(Arrays.asList(el), clazz, null, config);
 	}
 
 	/**
@@ -126,11 +131,13 @@ public class DeserializationMapper
 	 *          the el
 	 * @param clazz
 	 *          the clazz
+	 * @param config
+	 *          the config
 	 * @return the t
 	 * @throws Exception
 	 *           the exception
 	 */
-	private static <T> T deserializeObject(XmlElement el, Class<T> clazz) throws Exception
+	private static <T> T deserializeObject(XmlElement el, Class<T> clazz, Config config) throws Exception
 	{
 		T result = clazz.getDeclaredConstructor().newInstance();
 
@@ -170,7 +177,7 @@ public class DeserializationMapper
 			{
 				continue;
 			}
-			fillField(result, deserialize(lstElements, field.getType(), field), field);
+			fillField(result, deserialize(lstElements, field.getType(), field, config), field);
 		}
 
 		return result;
@@ -206,13 +213,15 @@ public class DeserializationMapper
 	 *          the value
 	 * @param clazz
 	 *          the clazz
+	 * @param config
+	 *          the config
 	 * @return the object
 	 * @throws ParseException
 	 *           the parse exception
 	 */
 	@SuppressWarnings(
 	{ "rawtypes", "unchecked" })
-	private static Object deserializeValue(String value, Class<?> clazz) throws ParseException
+	private static Object deserializeValue(String value, Class<?> clazz, Config config) throws ParseException
 	{
 		if ("null".equals(value))
 		{
@@ -252,7 +261,7 @@ public class DeserializationMapper
 		}
 		else if (Date.class.equals(clazz))
 		{
-			DateFormat df = new SimpleDateFormat(CommonUtils.DATE_FORMAT_XML);
+			DateFormat df = Optional.ofNullable(config.getDateFormat()).orElse(new SimpleDateFormat(CommonUtils.DATE_FORMAT_XML));
 			return df.parseObject(value);
 		}
 		else if (Enum.class.isAssignableFrom(clazz))
@@ -271,16 +280,18 @@ public class DeserializationMapper
 	 *          the lst elements
 	 * @param clazz
 	 *          the clazz
+	 * @param config
+	 *          the config
 	 * @return the list
 	 * @throws Exception
 	 *           the exception
 	 */
-	private static <T> List<T> deserializeList(List<XmlElement> lstElements, Class<T> clazz) throws Exception
+	private static <T> List<T> deserializeList(List<XmlElement> lstElements, Class<T> clazz, Config config) throws Exception
 	{
 		List<T> result = new ArrayList<>();
 		for (XmlElement el : lstElements)
 		{
-			result.add(deserialize(el, clazz));
+			result.add(deserialize(el, clazz, config));
 		}
 		return result;
 	}
@@ -298,17 +309,19 @@ public class DeserializationMapper
 	 *          the key clazz
 	 * @param valueClazz
 	 *          the value clazz
+	 * @param config
+	 *          the config
 	 * @return the map
 	 * @throws Exception
 	 *           the exception
 	 */
-	private static <K, V> Map<K, V> deserializeMap(XmlElement root, Class<K> keyClazz, Class<V> valueClazz) throws Exception
+	private static <K, V> Map<K, V> deserializeMap(XmlElement root, Class<K> keyClazz, Class<V> valueClazz, Config config) throws Exception
 	{
 		Map<K, V> result = new HashMap<>();
 		List<XmlElement> lstElements = root.get("entry");
 		for (XmlElement el : lstElements)
 		{
-			result.put(deserialize(el.getFirst("key"), keyClazz), deserialize(el.getFirst("value"), valueClazz));
+			result.put(deserialize(el.getFirst("key"), keyClazz, config), deserialize(el.getFirst("value"), valueClazz, config));
 		}
 		return result;
 	}

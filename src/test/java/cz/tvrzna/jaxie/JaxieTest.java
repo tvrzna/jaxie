@@ -88,7 +88,7 @@ public class JaxieTest
 		{
 			String result = jaxie.toXml(c);
 
-			TestClass dc = DeserializationMapper.deserialize(el, TestClass.class);
+			TestClass dc = DeserializationMapper.deserialize(el, TestClass.class, jaxie.getConfig());
 			System.out.print(result);
 		}
 		catch (Exception e)
