@@ -52,7 +52,6 @@ public class Serializator
 	 *          the indent
 	 * @param config
 	 *          the config
-	 * @return the string
 	 * @throws Exception
 	 *           the exception
 	 */
@@ -70,13 +69,10 @@ public class Serializator
 	 *          the w
 	 * @param object
 	 *          the object
-	 * @param pretty
-	 *          the pretty
 	 * @param indentCount
 	 *          the indent count
 	 * @param config
 	 *          the config
-	 * @return current element as String
 	 * @throws Exception
 	 *           the exception
 	 */
